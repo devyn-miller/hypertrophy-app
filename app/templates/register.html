@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register | OptiMuscle</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Register for OptiMuscle</h1>
+    <form method="post">
+        {{ form.csrf_token }}
+        {{ form.age.label }} {{ form.age(size=32) }}<br>
+        {{ form.sex.label }} {{ form.sex() }}<br>
+        {{ form.weight.label }} {{ form.weight(size=32) }}<br>
+        {{ form.height.label }} {{ form.height(size=32) }}<br>
+        {{ form.body_measurements.label }} {{ form.body_measurements() }}<br>
+        {{ form.goals.label }} {{ form.goals() }}<br>
+        {{ form.dexa_scan_results.label }} {{ form.dexa_scan_results() }}<br>
+        <input type="submit" value="Register">
+    </form>
+</body>
+</html>
