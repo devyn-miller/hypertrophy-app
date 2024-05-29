@@ -13,16 +13,6 @@ import base64
 from io import BytesIO
 from .forms import RegistrationForm, WorkoutLogForm
 
-class RegistrationForm(FlaskForm):
-    age = IntegerField('Age', validators=[DataRequired(), validate_user_age])
-    sex = SelectField('Sex', choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other')], validators=[DataRequired()])
-    weight = FloatField('Weight', validators=[DataRequired(), validate_positive_number])
-    height = FloatField('Height', validators=[DataRequired()])
-    body_measurements = TextAreaField('Body Measurements', validators=[DataRequired()])
-    training_experience = SelectField('Training Experience', choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')], validators=[DataRequired()])
-    goals = TextAreaField('Goals', validators=[DataRequired()])
-    dexa_scan_results = TextAreaField('DEXA Scan Results', validators=[Optional()])
-
 @app.route('/')
 def index():
     return render_template('dashboard.html')
