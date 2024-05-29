@@ -60,8 +60,8 @@ def adjust_dietary_goals(user, feedback=None, custom_macros=None):
         'fats': caloric_needs * fat_ratio / 9,         # 9 calories per gram of fats
         'carbs': caloric_needs * carb_ratio / 4        # 4 calories per gram of carbs
     }
-def adjust_training_plan(user, feedback=None):
-    current_plan = user.retrieve_current_training_plan()
+def adjust_training_plan(user, feedback=None, custom_exercises=None):
+    current_plan = user.retrieve_current_training_plan()  # Assuming the method is part of the user object
     if feedback and 'intensity_too_high' in feedback:
         adjustment_factor = 0.9  # Reduce volume by 10%
     elif feedback and 'intensity_too_low' in feedback:
@@ -69,7 +69,8 @@ def adjust_training_plan(user, feedback=None):
     else:
         adjustment_factor = 1  # No change
 
-    new_plan = {
+    # Apply adjustments to the current plan
+    adjusted_plan = {
         'exercises': [
             {
                 'name': exercise['name'],
@@ -78,4 +79,19 @@ def adjust_training_plan(user, feedback=None):
             } for exercise in current_plan['exercises']
         ]
     }
-    return new_plan
+
+    # Merge custom exercises provided by the user
+    if custom_exercises:
+        for custom_exercise in custom_exercises:
+            # Find and update the exercise if it exists in the adjusted plan
+            found = False
+            for adj_exercise in adjusted_plan['exercises']:
+                if adj_exercise['name'] == custom_exercise['name']:
+                    adj_exercise.update(custom_exercise)
+                    found = True
+                    break
+            # If not found, add as a new exercise
+            if not found:
+                adjusted_plan['exercises'].append(custom_exercise)
+
+    return adjusted_plan
