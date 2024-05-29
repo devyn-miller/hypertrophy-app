@@ -10,3 +10,4 @@ def view_progress(user_id):
     progress_data = create_progress_plot(logs)
     return render_template('progress.html', logs=logs, progress_data=progress_data)
 
+
