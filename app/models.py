@@ -36,15 +36,23 @@ class Exercise(db.Model):
 class TrainingProgram(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    name = db.Column(db.String(100))  # Name of the training program
+    description = db.Column(db.String(200))  # Description of the training program
+    creation_date = db.Column(db.Date)  # Date the program was created
+    status = db.Column(db.String(50))  # Status of the program (active, completed, paused)
     exercises = db.relationship('Exercise', secondary=training_exercises, backref='programs')
-    # Additional fields as needed
+    effectiveness_rating = db.Column(db.Float)  # User-rated effectiveness of the program
+    custom_options = db.Column(db.String(200))  # JSON or serialized format for user customizations
 
 class WorkoutLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     date = db.Column(db.Date)  # Date of the workout
-    exercises = db.Column(db.String(200))
-    # Additional fields...
+    duration = db.Column(db.Integer)  # Duration of the workout in minutes
+    feedback = db.Column(db.String(200))  # User feedback on the workout
+    exercises = db.relationship('Exercise', secondary=training_exercises, backref='workout_logs')
+    intensity = db.Column(db.String(50))  # Intensity level of the workout (e.g., light, moderate, intense)
+    workout_type = db.Column(db.String(50))  # Type of workout (e.g., cardio, strength, flexibility)
 
 class FoodItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
