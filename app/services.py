@@ -54,22 +54,23 @@ def adjust_dietary_goals(user, feedback=None):
         'carbs': caloric_needs * carb_ratio / 4        # 4 calories per gram of carbs
     }
 
-def adjust_training_plan(user_id):
-    user = User.query.get(user_id)
-    workout_logs = WorkoutLog.query.filter_by(user_id=user_id).all()
-    
-    # Example feature extraction: using workout volume and frequency as features
-    X = np.array([[log.volume, log.frequency] for log in workout_logs])
-    y = np.array([log.progress_metric for log in workout_logs])
+def adjust_training_plan(user, feedback=None):
+    current_plan = retrieve_current_training_plan(user)
+    if feedback and 'intensity_too_high' in feedback:
+        adjustment_factor = 0.9  # Reduce volume by 10%
+    elif feedback and 'intensity_too_low' in feedback:
+        adjustment_factor = 1.1  # Increase volume by 10%
+    else:
+        adjustment_factor = 1  # No change
 
-    predictor = ProgressPredictor()
-    predictor.train(X, y)
-    
-    # Predict the next step in the training plan
-    next_step = predictor.predict([[user.current_volume, user.current_frequency]])
-    
-    # Logic to adjust the training plan based on the prediction
-    # This could involve increasing volume, changing exercises, etc.
-    return next_step
-    
+    new_plan = {
+        'exercises': [
+            {
+                'name': exercise['name'],
+                'sets': int(exercise['sets'] * adjustment_factor),
+                'reps': int(exercise['reps'] * adjustment_factor)
+            } for exercise in current_plan['exercises']
+        ]
+    }
+    return new_plan
     
