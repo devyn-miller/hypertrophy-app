@@ -23,6 +23,8 @@ class User(db.Model):
     training_experience = db.Column(db.String(50))
     goals = db.Column(db.String(200))  # JSON or serialized format
     dexa_scan_results = db.Column(db.String(200))  # Optional, JSON or serialized format
+    progress_pictures = db.Column(db.String(200))  # Path to progress pictures
+    streak_count = db.Column(db.Integer, default=0)  # Track consecutive days of logging
 
 class Exercise(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -40,6 +42,7 @@ class TrainingProgram(db.Model):
 class WorkoutLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    date = db.Column(db.Date)  # Date of the workout
     exercises = db.Column(db.String(200))
     # Additional fields...
 
