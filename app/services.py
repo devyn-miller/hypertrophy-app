@@ -21,21 +21,31 @@ def activity_level_to_multiplier(level):
         'extra_active': 1.9
     }.get(level, 1)  # Default to sedentary if unknown
 
-def adjust_dietary_goals(user):
+def adjust_dietary_goals(user, feedback=None):
     caloric_needs = calculate_caloric_needs(user)
-    # Adjust macronutrient ratios based on user goals
+    # Adjust macronutrient ratios based on user goals and feedback
+    if feedback and 'satisfaction' in feedback:
+        satisfaction = feedback['satisfaction']
+        if satisfaction < 3:  # Assuming satisfaction is rated on a scale of 1-5
+            # Increase protein ratio for satiety
+            protein_boost = 0.05
+        else:
+            protein_boost = 0
+    else:
+        protein_boost = 0
+
     if user.goal == 'weight_loss':
-        protein_ratio = 0.35
+        protein_ratio = 0.35 + protein_boost
         fat_ratio = 0.25
-        carb_ratio = 0.40
+        carb_ratio = 0.40 - protein_boost
     elif user.goal == 'muscle_gain':
-        protein_ratio = 0.30
+        protein_ratio = 0.30 + protein_boost
         fat_ratio = 0.20
-        carb_ratio = 0.50
+        carb_ratio = 0.50 - protein_boost
     else:  # Maintenance or unspecified
-        protein_ratio = 0.25
+        protein_ratio = 0.25 + protein_boost
         fat_ratio = 0.30
-        carb_ratio = 0.45
+        carb_ratio = 0.45 - protein_boost
 
     return {
         'calories': caloric_needs,
@@ -61,4 +71,5 @@ def adjust_training_plan(user_id):
     # Logic to adjust the training plan based on the prediction
     # This could involve increasing volume, changing exercises, etc.
     return next_step
+    
     
