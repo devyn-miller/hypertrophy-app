@@ -20,5 +20,6 @@ def view_training_plan(user_id):
 
 @training.route('/adjust_training_plan/<int:user_id>', methods=['POST'])
 def adjust_training_plan(user_id):
-    new_plan = adjust_training_plan(user_id)
+    feedback = request.form['feedback']
+    new_plan = adjust_training_plan(user_id, feedback)
     return jsonify(new_plan=new_plan)

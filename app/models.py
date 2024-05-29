@@ -70,4 +70,3 @@ class DailyIntake(db.Model):
     date = db.Column(db.Date)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     food_items = db.relationship('FoodItem', secondary=intake_foods, backref='daily_intakes')
-

@@ -11,6 +11,7 @@ from .utils.validators import validate_positive_number, validate_user_age
 import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
+from .forms import RegistrationForm, WorkoutLogForm
 
 class RegistrationForm(FlaskForm):
     age = IntegerField('Age', validators=[DataRequired(), validate_user_age])
@@ -47,15 +48,17 @@ def register():
 
 @app.route('/log_workout', methods=['POST'])
 def log_workout():
-    workout_log = WorkoutLog(
-        user_id=request.form['user_id'],
-        exercises=request.form['exercises'],
-        # Additional fields...
-    )
-    db.session.add(workout_log)
-    db.session.commit()
-    return 'Workout logged successfully'
-
+    form = WorkoutLogForm()
+    if form.validate_on_submit():
+        new_log = WorkoutLog(
+            user_id=request.form['user_id'],
+            exercises=form.exercises.data,
+            # Additional fields...
+        )
+        db.session.add(new_log)
+        db.session.commit()
+        return jsonify({'message': 'Workout logged successfully'}), 200
+    return jsonify({'error': 'Invalid data'}), 400
 
 @app.route('/suggest_split', methods=['POST'])
 def suggest_split():
@@ -92,12 +95,11 @@ def create_progress_plot(logs):
     # Return HTML img tag with base64 data
     return f'<img src="data:image/png;base64,{plot_url}" alt="Progress Plot"/>'
 
-@app.route('/view_progress', methods=['GET'])
-def view_progress():
-    user_id = request.args.get('user_id')
+@app.route('/view_progress/<int:user_id>', methods=['GET'])
+def view_progress(user_id):
     logs = WorkoutLog.query.filter_by(user_id=user_id).all()
-    plot = create_progress_plot(logs)  # Function to create a plot
-    return render_template('progress.html', logs=logs, plot=plot)
+    progress_data = create_progress_plot(logs)  # Assuming a function to create visual progress
+    return render_template('progress.html', logs=logs, progress_data=progress_data)
 
 @app.route('/log_food', methods=['POST'])
 def log_food():
@@ -124,11 +126,9 @@ def get_diet(user_id):
 
 @app.route('/adjust_training/<int:user_id>', methods=['POST'])
 def adjust_training(user_id):
-    try:
-        new_plan = calculate_adjustments(user_id)
-        return jsonify(new_plan=new_plan), 200
-    except Exception as e:
-        return str(e), 500
+    feedback = request.form['feedback']
+    new_plan = adjust_training_plan(user_id, feedback)
+    return jsonify(new_plan=new_plan), 200
 
 def get_user_workout_data(user_id):
     logs = WorkoutLog.query.filter_by(user_id=user_id).all()
