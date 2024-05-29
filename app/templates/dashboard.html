@@ -7,6 +7,18 @@
 <body>
     <h1>Welcome to OptiMuscle</h1>
     <p>Here's your personalized dashboard with training and nutrition insights.</p>
-    <!-- Include more personalized components here -->
+    <div id="progress-section">
+        <h2>Your Progress</h2>
+        <img src="{{ url_for('static', filename='progress_chart.png') }}" alt="Progress Chart">
+    </div>
+    <div id="log-section">
+        <h2>Log Workout</h2>
+        <form action="{{ url_for('log_workout') }}" method="post">
+            {{ form.csrf_token }}
+            {{ form.exercises.label }} {{ form.exercises() }}
+            <button type="submit">Log Workout</button>
+        </form>
+    </div>
 </body>
+</html>
 </html>
