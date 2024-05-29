@@ -21,7 +21,7 @@ def activity_level_to_multiplier(level):
         'extra_active': 1.9
     }.get(level, 1)  # Default to sedentary if unknown
 
-def adjust_dietary_goals(user, feedback=None):
+def adjust_dietary_goals(user, feedback=None, custom_macros=None):
     caloric_needs = calculate_caloric_needs(user)
     # Adjust macronutrient ratios based on user goals and feedback
     if feedback and 'satisfaction' in feedback:
@@ -34,6 +34,7 @@ def adjust_dietary_goals(user, feedback=None):
     else:
         protein_boost = 0
 
+    # Default macro ratios based on goals
     if user.goal == 'weight_loss':
         protein_ratio = 0.35 + protein_boost
         fat_ratio = 0.25
@@ -47,15 +48,20 @@ def adjust_dietary_goals(user, feedback=None):
         fat_ratio = 0.30
         carb_ratio = 0.45 - protein_boost
 
+    # Allow user customization of macro ratios if provided
+    if custom_macros:
+        protein_ratio = custom_macros.get('protein', protein_ratio)
+        fat_ratio = custom_macros.get('fats', fat_ratio)
+        carb_ratio = custom_macros.get('carbs', carb_ratio)
+
     return {
         'calories': caloric_needs,
         'protein': caloric_needs * protein_ratio / 4,  # 4 calories per gram of protein
         'fats': caloric_needs * fat_ratio / 9,         # 9 calories per gram of fats
         'carbs': caloric_needs * carb_ratio / 4        # 4 calories per gram of carbs
     }
-
 def adjust_training_plan(user, feedback=None):
-    current_plan = retrieve_current_training_plan(user)
+    current_plan = user.retrieve_current_training_plan()
     if feedback and 'intensity_too_high' in feedback:
         adjustment_factor = 0.9  # Reduce volume by 10%
     elif feedback and 'intensity_too_low' in feedback:
@@ -73,4 +79,3 @@ def adjust_training_plan(user, feedback=None):
         ]
     }
     return new_plan
-    
