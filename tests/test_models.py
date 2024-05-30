@@ -52,8 +52,46 @@ class ModelTestCase(unittest.TestCase):
         db.session.add(user)
         db.session.commit()
         retrieved_user = User.query.get(user.id)
+        self.assertEqual(retrieved_user.height, 180)
+        self.assertEqual(retrieved_user.body_measurements, '{"chest": 42, "waist": 32}')
+        self.assertEqual(retrieved_user.training_experience, 'advanced')
+        self.assertEqual(retrieved_user.goals, '{"main": "muscle gain", "secondary": "strength"}')
+        self.assertEqual(retrieved_user.dexa_scan_results, '{"body_fat_percentage": 15}')
+        self.assertEqual(retrieved_user.progress_pictures, '/path/to/image.jpg')
         self.assertEqual(retrieved_user.streak_count, 10)
-        self.assertIsNotNone(retrieved_user.dexa_scan_results)
+
+    def test_training_program_effectiveness(self):
+        user = User(age=30, sex='male', weight=80)
+        program = TrainingProgram(name='Bulk Up', user=user, effectiveness_rating=4.5)
+        db.session.add(program)
+        db.session.commit()
+        self.assertEqual(program.effectiveness_rating, 4.5)
+
+    def test_food_item_nutrient_tracking(self):
+        food = FoodItem(name='Banana', calories=105, vitamins='Vitamin B6', minerals='Potassium')
+        db.session.add(food)
+        db.session.commit()
+        self.assertEqual(food.vitamins, 'Vitamin B6')
+        self.assertEqual(food.minerals, 'Potassium')
+
+    def test_user_goals_serialization(self):
+        user = User(
+            age=30, sex='male', weight=80, height=180,
+            goals='{"main": "muscle gain", "secondary": "strength"}'
+        )
+        db.session.add(user)
+        db.session.commit()
+        retrieved_user = User.query.get(user.id)
+        self.assertEqual(retrieved_user.goals, '{"main": "muscle gain", "secondary": "strength"}')
+
+    def test_training_program_exercise_relationship(self):
+        user = User(age=25, sex='male', weight=70)
+        exercise = Exercise(name='Deadlift', muscle_group='Back')
+        program = TrainingProgram(name='Strength Training', user=user)
+        program.exercises.append(exercise)
+        db.session.add_all([user, exercise, program])
+        db.session.commit()
+        self.assertIn(exercise, program.exercises)
 
 if __name__ == '__main__':
     unittest.main()

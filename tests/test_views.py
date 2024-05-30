@@ -51,6 +51,34 @@ class ViewTestCase(unittest.TestCase):
         response = self.client.get('/logout')
         self.assertEqual(response.status_code, 200)
 
+    def test_predict_progress_view(self):
+        user = User(age=25, sex='male', weight=70)
+        db.session.add(user)
+        db.session.commit()
+        response = self.client.get(f'/predict_progress/{user.id}')
+        self.assertEqual(response.status_code, 200)
+
+    def test_adjust_dietary_goals_view(self):
+        user = User(age=25, sex='male', weight=70)
+        db.session.add(user)
+        db.session.commit()
+        response = self.client.post(f'/adjust_dietary_goals/{user.id}', data={'feedback': 'less sugar'})
+        self.assertEqual(response.status_code, 200)
+
+    def test_view_progress(self):
+        user = User(age=25, sex='male', weight=70)
+        db.session.add(user)
+        db.session.commit()
+        response = self.client.get(f'/progress/{user.id}')
+        self.assertEqual(response.status_code, 200)
+
+    def test_adjust_dietary_view(self):
+        user = User(age=25, sex='male', weight=70)
+        db.session.add(user)
+        db.session.commit()
+        response = self.client.post(f'/adjust_diet/{user.id}', data={'adjustment': 'increase protein'})
+        self.assertEqual(response.status_code, 200)
+
 if __name__ == '__main__':
     unittest.main()
 

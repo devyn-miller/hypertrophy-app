@@ -95,3 +95,22 @@ def adjust_training_plan(user, feedback=None, custom_exercises=None):
                 adjusted_plan['exercises'].append(custom_exercise)
 
     return adjusted_plan
+
+def calculate_energy_expenditure(user, activity_level):
+    # Placeholder for Basal Metabolic Rate (BMR) calculation
+    if user.sex == 'male':
+        bmr = 88.362 + (13.397 * user.weight) + (4.799 * user.height) - (5.677 * user.age)
+    else:
+        bmr = 447.593 + (9.247 * user.weight) + (3.098 * user.height) - (4.330 * user.age)
+    
+    # Placeholder for activity level multiplier
+    activity_multiplier = {
+        'sedentary': 1.2,
+        'lightly_active': 1.375,
+        'moderately_active': 1.55,
+        'very_active': 1.725,
+        'extra_active': 1.9
+    }.get(activity_level, 1)  # Default to sedentary if unknown
+
+    return bmr * activity_multiplier
+
