@@ -27,13 +27,25 @@ input[type="submit"]:hover {
 /* New styles for progress and log sections */
 #progress-section, #log-section {
     margin: 20px;
-    padding: 15px;
+    padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
 }
 
 #progress-section h2, #log-section h2 {
     color: #333;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form input, form select, form textarea {
+    margin: 10px 0;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
 form button {

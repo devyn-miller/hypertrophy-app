@@ -10,13 +10,24 @@
     <div id="progress-section">
         <h2>Your Progress</h2>
         <img src="{{ url_for('static', filename='progress_chart.png') }}" alt="Progress Chart">
+        <a href="{{ url_for('view_progress', user_id=current_user.id) }}">View Detailed Progress</a>
     </div>
     <div id="log-section">
-        <h2>Log Workout</h2>
+        <h2>Log Your Workout</h2>
         <form action="{{ url_for('log_workout') }}" method="post">
             {{ form.csrf_token }}
-            {{ form.exercises.label }} {{ form.exercises() }}
+            {{ form.exercises }}
             <button type="submit">Log Workout</button>
+        </form>
+        <h2>Log Your Food</h2>
+        <form action="{{ url_for('log_food') }}" method="post">
+            {{ form.csrf_token }}
+            {{ form.name }}
+            {{ form.calories }}
+            {{ form.protein }}
+            {{ form.carbs }}
+            {{ form.fats }}
+            <button type="submit">Log Food</button>
         </form>
     </div>
 </body>
