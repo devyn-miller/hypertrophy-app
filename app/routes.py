@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import base64
 from io import BytesIO
 from .forms import RegistrationForm, WorkoutLogForm
+from .views.training import training
 
 @app.route('/')
 def index():
@@ -40,8 +41,12 @@ def register():
 def log_workout():
     form = WorkoutLogForm()
     if form.validate_on_submit():
+        user_id = request.form['user_id']
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
         new_log = WorkoutLog(
-            user_id=request.form['user_id'],
+            user_id=user_id,
             exercises=form.exercises.data,
             # Additional fields...
         )
@@ -50,7 +55,7 @@ def log_workout():
         return jsonify({'message': 'Workout logged successfully'}), 200
     return jsonify({'error': 'Invalid data'}), 400
 
-@app.route('/suggest_split', methods=['POST'])
+@training.route('/suggest_split', methods=['POST'])
 def suggest_split():
     user_id = request.form['user_id']
     user = User.query.get(user_id)
@@ -93,18 +98,21 @@ def view_progress(user_id):
 
 @app.route('/log_food', methods=['POST'])
 def log_food():
-    food_data = {
-        'name': request.form['name'],
-        'calories': request.form['calories'],
-        'protein': request.form['protein'],
-        'carbs': request.form['carbs'],
-        'fats': request.form['fats'],
-        'user_id': request.form['user_id']
-    }
-    new_food = FoodItem(**food_data)
-    db.session.add(new_food)
-    db.session.commit()
-    return 'Food logged successfully'
+    try:
+        food_data = {
+            'name': request.form['name'],
+            'calories': request.form['calories'],
+            'protein': request.form['protein'],
+            'carbs': request.form['carbs'],
+            'fats': request.form['fats'],
+            'user_id': request.form['user_id']
+        }
+        new_food = FoodItem(**food_data)
+        db.session.add(new_food)
+        db.session.commit()
+        return 'Food logged successfully'
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/user/<int:user_id>/diet', methods=['GET'])
 def get_diet(user_id):
@@ -117,8 +125,14 @@ def get_diet(user_id):
 @app.route('/adjust_training/<int:user_id>', methods=['POST'])
 def adjust_training(user_id):
     feedback = request.form['feedback']
-    new_plan = adjust_training_plan(user_id, feedback)
-    return jsonify(new_plan=new_plan), 200
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    try:
+        new_plan = adjust_training_plan(user, feedback)
+        return jsonify(new_plan=new_plan)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 def get_user_workout_data(user_id):
     logs = WorkoutLog.query.filter_by(user_id=user_id).all()
