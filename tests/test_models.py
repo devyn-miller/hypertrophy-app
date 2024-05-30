@@ -39,6 +39,22 @@ class ModelTestCase(unittest.TestCase):
         db.session.commit()
         self.assertEqual(food.name, 'Apple')
 
+    def test_user_complete_profile(self):
+        user = User(
+            age=30, sex='male', weight=80, height=180,
+            body_measurements='{"chest": 42, "waist": 32}',
+            training_experience='advanced',
+            goals='{"main": "muscle gain", "secondary": "strength"}',
+            dexa_scan_results='{"body_fat_percentage": 15}',
+            progress_pictures='/path/to/image.jpg',
+            streak_count=10
+        )
+        db.session.add(user)
+        db.session.commit()
+        retrieved_user = User.query.get(user.id)
+        self.assertEqual(retrieved_user.streak_count, 10)
+        self.assertIsNotNone(retrieved_user.dexa_scan_results)
+
 if __name__ == '__main__':
     unittest.main()
 
