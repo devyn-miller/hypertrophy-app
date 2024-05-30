@@ -28,6 +28,16 @@ class ServiceTestCase(unittest.TestCase):
         new_goals = adjust_dietary_goals(self.user, feedback)
         self.assertIn('carbs', new_goals)
 
+    def test_adjust_dietary_goals_with_feedback(self):
+        user = User(age=25, sex='male', weight=75, height=175)
+        db.session.add(user)
+        db.session.commit()
+        feedback = {'satisfaction': 2, 'request': 'more protein'}
+        previous_protein_amount = adjust_dietary_goals(user)['protein']
+        new_goals = adjust_dietary_goals(user, feedback)
+        self.assertIn('protein', new_goals)
+        self.assertGreater(new_goals['protein'], previous_protein_amount)
+
     def test_calculate_energy_expenditure(self):
         user = User(age=25, sex='male', weight=75, height=175)  # Example user details
         expected_bmr = 88.362 + (13.397 * 75) + (4.799 * 175) - (5.677 * 25)
@@ -36,5 +46,6 @@ class ServiceTestCase(unittest.TestCase):
         self.assertAlmostEqual(result, expected_value)
 
 if __name__ == '__main__':
+    unittest.main()
     unittest.main()
     unittest.main()

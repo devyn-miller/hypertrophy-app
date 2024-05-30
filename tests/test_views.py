@@ -79,6 +79,38 @@ class ViewTestCase(unittest.TestCase):
         response = self.client.post(f'/adjust_diet/{user.id}', data={'adjustment': 'increase protein'})
         self.assertEqual(response.status_code, 200)
 
+    def test_user_registration_error_handling(self):
+        # Test with incomplete data
+        response = self.client.post('/register', data={
+            'age': 25,
+            'sex': 'male'
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response.data)
+
+    def test_log_workout(self):
+        user = User(age=25, sex='male', weight=70)
+        db.session.add(user)
+        db.session.commit()
+        response = self.client.post('/log_workout', data={
+            'user_id': user.id,
+            'exercises': 'Squat, Bench Press',
+            'duration': 60
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Workout logged successfully', response.data)
+
+    def test_log_workout_error_handling(self):
+        # Test with non-existent user
+        response = self.client.post('/log_workout', data={
+            'user_id': 999,  # Assuming user ID 999 does not exist
+            'exercises': 'Squat, Bench Press',
+            'duration': 60
+        })
+        self.assertEqual(response.status_code, 404)
+        self.assertIn('User not found', response.data)
+
 if __name__ == '__main__':
     unittest.main()
+
 
